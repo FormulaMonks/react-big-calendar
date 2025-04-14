@@ -456,7 +456,7 @@ class Calendar extends React.Component {
      * Localizer specific formats, tell the Calendar how to format and display dates.
      *
      * `format` types are dependent on the configured localizer; both Moment and Globalize
-     * accept strings of tokens according to their own specification, such as: `'DD mm yyyy'`.
+     * accept strings of tokens according to their own specification, such as: 'DD mm yyyy'.
      *
      * ```jsx
      * let formats = {
@@ -734,51 +734,18 @@ class Calendar extends React.Component {
   }
 
   handleCalendarMonthChange = (date: Date) => {
-    const dateTime = new Date(date).getTime();
-    let { startOfCurrentMonth, endOfCurrentMonth, activeCalendar } = this.state;
-    const startOfCurrentMonthTime = startOfCurrentMonth.getTime();
-    const endOfCurrentMonthTime = endOfCurrentMonth.getTime();
-    /**
-    if currentDate is less than startOfCurrentMonth
-        calendarActivated should be the other one
-        change startOfCurrentMonth adn endOfCurrentMonth to selected month
-    else if currentDate is bigger than endOfCurrentMonth
-        calendarActivated should be the other one
-        change startOfCurrentMonth and endOfCurrentMonth to selected month
-    else
-        do nothing
-     */
+    const { activeCalendar } = this.state;
 
-    if (dateTime < startOfCurrentMonthTime) {
-      activeCalendar = activeCalendar === 1 ? 2 : 1;
-      startOfCurrentMonth = new Date(
-        startOfCurrentMonth.getFullYear(),
-        startOfCurrentMonth.getMonth() - 1,
-        1,
-      );
-      endOfCurrentMonth = new Date(
-        endOfCurrentMonth.getFullYear(),
-        endOfCurrentMonth.getMonth(),
-        0,
-      );
-    } else if (dateTime > endOfCurrentMonthTime) {
-      activeCalendar = activeCalendar === 1 ? 2 : 1;
-      startOfCurrentMonth = new Date(
-        startOfCurrentMonth.getFullYear(),
-        startOfCurrentMonth.getMonth() + 1,
-        1,
-      );
-      endOfCurrentMonth = new Date(
-        endOfCurrentMonth.getFullYear(),
-        endOfCurrentMonth.getMonth() + 2,
-        0,
-      );
-    }
+    const year = date.getFullYear();
+    const month = date.getMonth();
+
+    const startOfCurrentMonth = new Date(year, month, 1);
+    const endOfCurrentMonth = new Date(year, month + 2, 0);
 
     this.setState({
-      activeCalendar,
       startOfCurrentMonth,
       endOfCurrentMonth,
+      activeCalendar,
     });
   };
 
