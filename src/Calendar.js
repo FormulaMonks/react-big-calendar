@@ -733,24 +733,30 @@ class Calendar extends React.Component {
     return <ConnectedMenu />;
   }
 
-  handleCalendarMonthChange = (date: Date) => {
+  handleCalendarMonthChange = (date: Date, action) => {
     const dateTime = new Date(date).getTime();
     let { startOfCurrentMonth, endOfCurrentMonth, activeCalendar } = this.state;
     const startOfCurrentMonthTime = startOfCurrentMonth.getTime();
     const endOfCurrentMonthTime = endOfCurrentMonth.getTime();
-    /**
-    if currentDate is less than startOfCurrentMonth
-        calendarActivated should be the other one
-        change startOfCurrentMonth adn endOfCurrentMonth to selected month
-    else if currentDate is bigger than endOfCurrentMonth
-        calendarActivated should be the other one
-        change startOfCurrentMonth and endOfCurrentMonth to selected month
-    else
-        do nothing
-     */
 
-    if (dateTime < startOfCurrentMonthTime) {
-      activeCalendar = activeCalendar === 1 ? 2 : 1;
+    if (action === navigate.NEXT) {
+      const nextMonth = startOfCurrentMonth.getMonth() + 1;
+
+      startOfCurrentMonth = new Date(startOfCurrentMonth.getFullYear(), nextMonth, 1);
+
+      endOfCurrentMonth = new Date(endOfCurrentMonth.getFullYear(), nextMonth + 1, 0);
+    }
+
+    if (action === navigate.PREVIOUS) {
+      const previousMonth = startOfCurrentMonth.getMonth() - 1;
+
+      startOfCurrentMonth = new Date(startOfCurrentMonth.getFullYear(), previousMonth, 1);
+
+      endOfCurrentMonth = new Date(endOfCurrentMonth.getFullYear(), previousMonth + 1, 0);
+    }
+
+    if (dateTime < startOfCurrentMonthTime && action === null) {
+      activeCalendar = 1;
       startOfCurrentMonth = new Date(
         startOfCurrentMonth.getFullYear(),
         startOfCurrentMonth.getMonth() - 1,
@@ -761,18 +767,18 @@ class Calendar extends React.Component {
         endOfCurrentMonth.getMonth(),
         0,
       );
-    } else if (dateTime > endOfCurrentMonthTime) {
-      activeCalendar = activeCalendar === 1 ? 2 : 1;
-      startOfCurrentMonth = new Date(
-        startOfCurrentMonth.getFullYear(),
-        startOfCurrentMonth.getMonth() + 1,
-        1,
-      );
-      endOfCurrentMonth = new Date(
-        endOfCurrentMonth.getFullYear(),
-        endOfCurrentMonth.getMonth() + 2,
-        0,
-      );
+    }
+
+    if (dateTime > endOfCurrentMonthTime && action === null) {
+      activeCalendar = 2;
+
+      const dateCurrentMonth = date.getMonth();
+      const startMonth = startOfCurrentMonth.getMonth();
+
+      const nextMonth = dateCurrentMonth > startMonth ? dateCurrentMonth : startMonth + 1;
+
+      startOfCurrentMonth = new Date(startOfCurrentMonth.getFullYear(), nextMonth, 1);
+      endOfCurrentMonth = new Date(endOfCurrentMonth.getFullYear(), nextMonth + 1, 0);
     }
 
     this.setState({
@@ -940,7 +946,7 @@ class Calendar extends React.Component {
     });
 
     if (showTwoMonths) {
-      this.handleCalendarMonthChange(date);
+      this.handleCalendarMonthChange(date, action);
     }
 
     onNavigate(date, view, action);
